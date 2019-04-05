@@ -262,7 +262,12 @@ class Mt940
     public function balance($text)
     {
         if (!preg_match('/(C|D)(\d{6})([A-Z]{3})([0-9,]{1,15})/', $text, $match)) {
-            throw new \RuntimeException(sprintf('Cannot parse balance: "%s"', $text));
+            //throw new \RuntimeException(sprintf('Cannot parse balance: "%s"', $text));
+            $balance[currency]='';
+            $balance[amount]=0;
+            $balance[date]='';
+
+            return $balance;
         }
 
         $amount = (float) str_replace(',', '.', $match[4]);
