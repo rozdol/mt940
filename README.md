@@ -1,11 +1,11 @@
-PHP Class for Payroll for Cyprus
+PHP Class for TM940 statements
 ================================
 
 
 About
 -----
 
-Payroll for Cyprus
+TM940 statements parser
 
 Install
 -------
@@ -13,24 +13,24 @@ Install
 cd to `your_project_root_dir`
 
 ```bash
-composer require rozdol/payroll:"v1.*"
+composer require rozdol/mt940:"v1.*"
 ```
 
 in Table or Model or Controller
 
 ```php
-use Rozdol\Payroll\Payroll;
-$this->payroll = new Payroll();
+use Rozdol\Mt940\Mt940;
+$this->mt940 = new Mt940();
 $data=[...];
-$result = $this->utils->payslip($data);
+$result = $this->utils->mt940($data);
 ```
 
 ### Unit Test
 
-`cd payroll`
+`cd mt940`
 
 ```bash
-composer update rozdol/payroll
+composer update rozdol/mt940
 ```
 
 To test
@@ -41,7 +41,7 @@ To test
 ## Compose library Tutorial
 
 ```bash
-cd payroll
+cd mt940
 composer update
 git init
 git .
@@ -51,29 +51,29 @@ git commit -m 'Initial commit'
 Create github repo
 
 ```bash
-git remote add origin git@github.com:rozdol/payroll.git
+git remote add origin git@github.com:rozdol/mt940.git
 git push origin master
 ```
 
 - on github add new release (v1.0.0)
 - On packagist Update Package
 - Login to [packagist.org](https://packagist.org/)
-- Submit `https://github.com/rozdol/payroll`
+- Submit `https://github.com/rozdol/mt940`
 
 ### Ready to use in project
 
 cd to `your_project_root_dir`
 
 ```bash
-composer require rozdol/payroll
+composer require rozdol/mt940
 ```
 
 in Table or Model or Controller
 
 ```php
-use Rozdol\Payroll\Payroll;
-$this->payroll = new Payroll();
-$date_normalized = $this->payroll->F_date('01/01/20', 1); // 01.01.2020
+use Rozdol\Mt940\Mt940;
+$this->mt940 = new Mt940();
+$date_normalized = $this->mt940->F_date('01/01/20', 1); // 01.01.2020
 ```
 
 
@@ -101,11 +101,11 @@ mkdir TestCase
 cd TestCase
 mkdir Funcs
 ```
-edit `PayrollTest.php`
+edit `mt940Test.php`
 
-`cd payroll`
+`cd mt940`
 ```bash
-composer update rozdol/payroll
+composer update rozdol/mt940
 ```
 
 To test
@@ -150,6 +150,6 @@ Add Service: click
 ```bash
 git remote -v
 git remote remove origin
-git remote add origin git@github.com:rozdol/payroll.git
+git remote add origin git@github.com:rozdol/mt940.git
 git push origin random_changes
 ```
