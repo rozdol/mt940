@@ -111,8 +111,9 @@ class Mt940
         $statement[statementNumber]=$this->statementNumber($text);
         $statement[accountNumber]=$this->accountNumber($text);
         $statement[accountCurrency]=$this->accountCurrency($text);
-        $statement[openingBalance]=$this->openingBalance($text);
-        $statement[closingBalance]=$this->closingBalance($text);
+        $statement[openingBalance]=$this->balance($this->openingBalance($text))[amount];
+        $statement[closingBalance]=$this->balance($this->closingBalance($text))[amount];
+        if($statement[accountCurrency]=='')$statement[accountCurrency]=$this->balance($this->openingBalance($text))[currency];
         foreach ($this->splitTransactions($text) as $chunk) {
             $statement[transactions][]=$this->transaction($chunk);
         }
@@ -257,6 +258,26 @@ class Mt940
     public function description($description)
     {
         return $description;
+    }
+    public function balance($text)
+    {
+        if (!preg_match('/(C|D)(\d{6})([A-Z]{3})([0-9,]{1,15})/', $text, $match)) {
+            throw new \RuntimeException(sprintf('Cannot parse balance: "%s"', $text));
+        }
+
+        $amount = (float) str_replace(',', '.', $match[4]);
+        if ($match[1] === 'D') {
+            $amount *= -1;
+        }
+
+        $date = \DateTime::createFromFormat('ymd', $match[2]);
+        $date->setTime(0, 0, 0);
+
+        $balance[currency]=$match[3];
+        $balance[amount]=$amount;
+        $balance[date]=$date->format('d.m.Y');
+
+        return $balance;
     }
 
     public function test()
