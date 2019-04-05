@@ -1,6 +1,6 @@
 {
     "name": "rozdol/mt940",
-    "description": "Payroll for Cyprus",
+    "description": "Mt940 parcer",
     "license": "MIT",
     "type": "library",
     "authors": [
