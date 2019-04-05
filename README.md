@@ -7,6 +7,8 @@ About
 
 TM940 statements parser
 
+Inspired by jejik-mt940 (https://github.com/sandermarechal/jejik-mt940)
+
 Install
 -------
 
