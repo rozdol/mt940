@@ -112,7 +112,11 @@ class Mt940
         $statement[accountNumber]=$this->accountNumber($text);
         $statement[accountCurrency]=$this->accountCurrency($text);
         $statement[openingBalance]=$this->balance($this->openingBalance($text))[amount];
+        $statement[openingBalanceDate]=$this->balance($this->openingBalance($text))[date];
         $statement[closingBalance]=$this->balance($this->closingBalance($text))[amount];
+        $statement[closingBalanceDate]=$this->balance($this->closingBalance($text))[date];
+        $statement[messageDate]=$this->messageDate($text)[date];
+
         if($statement[accountCurrency]=='')$statement[accountCurrency]=$this->balance($this->openingBalance($text))[currency];
         foreach ($this->splitTransactions($text) as $chunk) {
             $statement[transactions][]=$this->transaction($chunk);
@@ -156,6 +160,30 @@ class Mt940
     {
         if ($line = $this->getLine('62F|62M', $text)) {
             return $line;
+        }
+    }
+
+    public function messageDate($text)
+    {
+        if ($line = $this->getLine('13D', $text)) {
+            if (!preg_match('/(\d{6})(\d{4})(\+|-)(\d{4})/', $line, $match)) {
+                //throw new \RuntimeException(sprintf('Cannot parse date: "%s"', $text));
+                $result[date]='';
+                $result[time]='';
+                $result[zone]='';
+
+                return $result;
+            }
+            //return $match;
+
+            $date = \DateTime::createFromFormat('ymd', $match[1]);
+            $date->setTime(0, 0, 0);
+
+            $result[zone]='';
+            $result[time]='';
+            $result[date]=$date->format('d.m.Y');
+
+            return $result;
         }
     }
 
