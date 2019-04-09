@@ -119,7 +119,7 @@ class Mt940
 
         if($statement[accountCurrency]=='')$statement[accountCurrency]=$this->balance($this->openingBalance($text))[currency];
         foreach ($this->splitTransactions($text) as $chunk) {
-            $statement[transactions][]=$this->transaction($chunk);
+            $statement[transactions][]=$this->transaction($chunk,$statement[openingBalanceDate]);
         }
 
         return $statement;
@@ -187,12 +187,14 @@ class Mt940
         }
     }
 
-    public function transaction(array $lines)
+    public function transaction(array $lines, $openingBalanceDate='')
     {
         // if (!preg_match('/(\d{6})((\d{2})(\d{2}))?(C|D)([A-Z]?)([0-9,]{1,15})/', $lines[0], $match)) {
         //     throw new \RuntimeException(sprintf('Could not parse transaction line "%s"', $lines[0]));
         // }
-        if (!preg_match('/(\d{6})((\d{2})(\d{2}))?(C|D|EC|ED|RC|RD)([A-Z]?)([0-9,]{1,15})/', $lines[0], $match)) {
+        // (\d{6})((\d{2})(\d{2}))?(C|D|EC|ED|RC|RD)([A-Z]?)([0-9,]{1,15}([a-zA-Z0-9]{4})(.*)(\/\/)(.*))
+        // (\d{6})((\d{2})(\d{2}))?(C|D|EC|ED|RC|RD)([A-Z]?)([0-9,]{1,15})
+        if (!preg_match('/(\d{6})((\d{2})(\d{2}))?(C|D|EC|ED|RC|RD)([A-Z]?)([0-9,]{1,15}([a-zA-Z0-9]{4})(.*)(\/\/)(.*))/', $lines[0], $match)) {
             throw new \RuntimeException(sprintf('Could not parse transaction line "%s"', $lines[0]));
         }
 
@@ -208,15 +210,15 @@ class Mt940
         $valueDate->setTime(0, 0, 0);
 
         $bookDate = null;
-
+        //$bookDate = $openingBalanceDate;
         if ($match[2]) {
             // Construct book date from the month and day provided by adding the year of the value date as best guess.
             $month = intval($match[3]);
             $day = intval($match[4]);
             $bookDate = $this->getNearestDateTimeFromDayAndMonth($valueDate, $day, $month);
         }
-        $parts=explode(',',$lines[0]);
-        $add_info=str_replace('//', "\n", $parts[1]);
+
+        $add_info=$match[9]."\n".$match[11];
         $description = isset($lines[1]) ? $lines[1] : null;
         //$transaction = $this->reader->createTransaction();
         // foreach ($match as $key => $value) {
@@ -226,7 +228,7 @@ class Mt940
         $transaction[amount]=$amount;
 
         $transaction[valueDate]=$valueDate->format('d.m.Y');
-        if($bookDate)$transaction[bookDate]=$bookDate->format('d.m.Y');
+        $transaction[bookDate]=($bookDate)?$bookDate->format('d.m.Y'):$openingBalanceDate;
         $transaction[contraAccountNumber]=$this->contraAccountNumber($lines);
         $transaction[contraAccountName]=$this->contraAccountName($lines);
         $transaction[add_info]=$this->description($add_info);
