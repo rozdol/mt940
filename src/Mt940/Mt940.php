@@ -194,7 +194,7 @@ class Mt940
         // }
         // (\d{6})((\d{2})(\d{2}))?(C|D|EC|ED|RC|RD)([A-Z]?)([0-9,]{1,15}([a-zA-Z0-9]{4})(.*)(\/\/)(.*))
         // (\d{6})((\d{2})(\d{2}))?(C|D|EC|ED|RC|RD)([A-Z]?)([0-9,]{1,15})
-        if (!preg_match('/(\d{6})((\d{2})(\d{2}))?(C|D|EC|ED|RC|RD)([A-Z]?)([0-9,]{1,15}([a-zA-Z0-9]{4})(.*)(\/\/)(.*))/', $lines[0], $match)) {
+        if (!preg_match('/(\d{6})((\d{2})(\d{2}))?(C|D|EC|ED|RC|RD)([A-Z]?)([0-9,]{1,15}([a-zA-Z0-9]{4})(.*))/', $lines[0], $match)) {
             throw new \RuntimeException(sprintf('Could not parse transaction line "%s"', $lines[0]));
         }
 
@@ -218,7 +218,8 @@ class Mt940
             $bookDate = $this->getNearestDateTimeFromDayAndMonth($valueDate, $day, $month);
         }
 
-        $add_info=$match[9]."\n".$match[11];
+        $add_info=str_ireplace("//", "\n", $match[9]);
+
         $description = isset($lines[1]) ? $lines[1] : null;
         //$transaction = $this->reader->createTransaction();
         // foreach ($match as $key => $value) {
