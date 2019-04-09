@@ -116,6 +116,8 @@ class Mt940
         $statement[closingBalance]=$this->balance($this->closingBalance($text))[amount];
         $statement[closingBalanceDate]=$this->balance($this->closingBalance($text))[date];
         $statement[messageDate]=$this->messageDate($text)[date];
+        $statement[messageTime]=$this->messageDate($text)[time];
+        $statement[messageTimeZone]=$this->messageDate($text)[zone];
 
         if($statement[accountCurrency]=='')$statement[accountCurrency]=$this->balance($this->openingBalance($text))[currency];
         foreach ($this->splitTransactions($text) as $chunk) {
@@ -166,7 +168,7 @@ class Mt940
     public function messageDate($text)
     {
         if ($line = $this->getLine('13D', $text)) {
-            if (!preg_match('/(\d{6})(\d{4})(\+|-)(\d{4})/', $line, $match)) {
+            if (!preg_match('/(\d{10}[+|-]\d{4})/', $line, $match)) {
                 //throw new \RuntimeException(sprintf('Cannot parse date: "%s"', $text));
                 $result[date]='';
                 $result[time]='';
@@ -175,12 +177,13 @@ class Mt940
                 return $result;
             }
             //return $match;
+            //echo $this->html->pre_display($match,"match");
+            $date = \DateTime::createFromFormat('ymdHiT', $match[1]);
+            //echo $this->html->pre_display($date,"date");
+            //$date->setTime(0, 0, 0);
 
-            $date = \DateTime::createFromFormat('ymd', $match[1]);
-            $date->setTime(0, 0, 0);
-
-            $result[zone]='';
-            $result[time]='';
+            $result[zone]=$date->format('T');;
+            $result[time]=$date->format('H:i');
             $result[date]=$date->format('d.m.Y');
 
             return $result;
@@ -189,6 +192,9 @@ class Mt940
 
     public function transaction(array $lines, $openingBalanceDate='')
     {
+        $lines[0]=str_ireplace("\r\n","//",$lines[0]);
+        //$lines[0]=str_ireplace("\r","//",$lines[0]);
+        //echo $this->html->pre_display($lines,"lines");
         // if (!preg_match('/(\d{6})((\d{2})(\d{2}))?(C|D)([A-Z]?)([0-9,]{1,15})/', $lines[0], $match)) {
         //     throw new \RuntimeException(sprintf('Could not parse transaction line "%s"', $lines[0]));
         // }
