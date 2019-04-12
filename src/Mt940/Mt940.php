@@ -5,6 +5,21 @@ use Rozdol\Dates\Dates;
 use Rozdol\Utils\Utils;
 use Rozdol\Html\Html;
 
+
+// Fields covered
+// 20
+// 25
+// 28
+// 34
+// 13
+// 60
+// 61
+// 86
+// 62
+// 64
+// 65
+// 90
+
 class Mt940
 {
     private static $hInstance;
@@ -108,6 +123,8 @@ class Mt940
 
     public function statementBody($text)
     {
+        $statement[statementType]=$this->statement_type($text);
+        $statement[referenceNumber]=$this->referenceNumber($text);
         $statement[statementNumber]=$this->statementNumber($text);
         $statement[accountNumber]=$this->accountNumber($text);
         $statement[accountCurrency]=$this->accountCurrency($text);
@@ -115,16 +132,48 @@ class Mt940
         $statement[openingBalanceDate]=$this->balance($this->openingBalance($text))[date];
         $statement[closingBalance]=$this->balance($this->closingBalance($text))[amount];
         $statement[closingBalanceDate]=$this->balance($this->closingBalance($text))[date];
+        $statement[closingBalanceAvaliable]=$this->balance($this->closingBalanceAvaliable($text))[amount];
+        $statement[closingBalanceAvaliableDate]=$this->balance($this->closingBalanceAvaliable($text))[date];
+        $statement[forwardBalanceAvaliable]=$this->balance($this->forwardBalanceAvaliable($text))[amount];
+        $statement[forwardBalanceAvaliableDate]=$this->balance($this->forwardBalanceAvaliable($text))[date];
+        $statement[debitEntriesAmount]=$this->balance($this->debitEntries($text))[amount];
+        $statement[creditEntriesAmount]=$this->balance($this->creditEntries($text))[amount];
         $statement[messageDate]=$this->messageDate($text)[date];
         $statement[messageTime]=$this->messageDate($text)[time];
         $statement[messageTimeZone]=$this->messageDate($text)[zone];
 
         if($statement[accountCurrency]=='')$statement[accountCurrency]=$this->balance($this->openingBalance($text))[currency];
+        $tr_no=0;
+        $transactions=[];
+        $bookDates=[];
+        $valueDates=[];
         foreach ($this->splitTransactions($text) as $chunk) {
-            $statement[transactions][]=$this->transaction($chunk,$statement[openingBalanceDate]);
-        }
+            $transactions[$tr_no]=$this->transaction($chunk,$statement[openingBalanceDate]);
 
+            $bookDates[]=$transactions[$tr_no][bookDate];
+            $valueDates[]=$transactions[$tr_no][valueDate];
+            $tr_no++;
+        }
+        $statement[bookDateFrom]=date('d.m.Y', min(array_map('strtotime', $bookDates)));
+        $statement[bookDateTo]=date('d.m.Y', max(array_map('strtotime', $bookDates)));
+        $statement[valueDateFrom]=date('d.m.Y', min(array_map('strtotime', $valueDates)));
+        $statement[valueDateTo]=date('d.m.Y', max(array_map('strtotime', $valueDates)));
+        $statement[bookDateFrom]=($statement[bookDateFrom]!='01.01.1970')?$statement[bookDateFrom]:'';
+        $statement[bookDateTo]=($statement[bookDateTo]!='01.01.1970')?$statement[bookDateTo]:'';
+        $statement[valueDateFrom]=($statement[valueDateFrom]!='01.01.1970')?$statement[valueDateFrom]:'';
+        $statement[valueDateTo]=($statement[valueDateTo]!='01.01.1970')?$statement[valueDateTo]:'';
+        $statement[transactions]=$transactions;
         return $statement;
+    }
+
+    public function statement_type($text)
+    {
+        $text = trim($text);
+        if (($pos = strpos($text, ':13D:')) === false) {
+            return "MT940";
+        }else{
+            return "MT942";
+        }
     }
 
     public function accountNumber($text)
@@ -135,6 +184,15 @@ class Mt940
 
         return null;
     }
+    public function referenceNumber($text)
+    {
+        if ($number = $this->getLine('20', $text)) {
+            return $number;
+        }
+
+        return null;
+    }
+
     public function statementNumber($text)
     {
         if ($number = $this->getLine('28|28C', $text)) {
@@ -161,6 +219,34 @@ class Mt940
     public function closingBalance($text)
     {
         if ($line = $this->getLine('62F|62M', $text)) {
+            return $line;
+        }
+    }
+
+    public function closingBalanceAvaliable($text)
+    {
+        if ($line = $this->getLine('64', $text)) {
+            return $line;
+        }
+    }
+
+    public function forwardBalanceAvaliable($text)
+    {
+        if ($line = $this->getLine('65', $text)) {
+            return $line;
+        }
+    }
+
+    public function debitEntries($text)
+    {
+        if ($line = $this->getLine('90D', $text)) {
+            return $line;
+        }
+    }
+
+    public function creditEntries($text)
+    {
+        if ($line = $this->getLine('90C', $text)) {
             return $line;
         }
     }
@@ -299,6 +385,18 @@ class Mt940
     public function description($description)
     {
         return $description;
+    }
+    public function number_and_amount($text)
+    {
+        if (!preg_match('/(C|D)(\d{6})([A-Z]{3})([0-9,]{1,15})/', $text, $match)) {
+            //throw new \RuntimeException(sprintf('Cannot parse balance: "%s"', $text));
+            $balance[currency]='';
+            $balance[amount]=0;
+            $balance[date]='';
+
+            return $balance;
+        }
+
     }
     public function balance($text)
     {
