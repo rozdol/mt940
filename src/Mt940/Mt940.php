@@ -162,7 +162,10 @@ class Mt940
         $statement[bookDateTo]=($statement[bookDateTo]!='01.01.1970')?$statement[bookDateTo]:'';
         $statement[valueDateFrom]=($statement[valueDateFrom]!='01.01.1970')?$statement[valueDateFrom]:'';
         $statement[valueDateTo]=($statement[valueDateTo]!='01.01.1970')?$statement[valueDateTo]:'';
+        $statement[transactionsNumber]=$tr_no;
         $statement[transactions]=$transactions;
+
+        if($statement[messageDate]=='' && $statement[closingBalanceDate]!='')$statement[messageDate]=$statement[closingBalanceDate];
         return $statement;
     }
 
@@ -296,7 +299,13 @@ class Mt940
         if ($match[5] === 'D' || $match[5] === 'ED' || $match[5] === 'RD') {
             $amount *= -1;
         }
-
+        if($amount>0){
+            $dr=0;
+            $cr=$amount;
+        }else{
+            $dr=-1*$amount;
+            $cr=0;
+        }
         // Parse dates
         $valueDate = \DateTime::createFromFormat('ymd', $match[1]);
         $valueDate->setTime(0, 0, 0);
@@ -313,19 +322,32 @@ class Mt940
         $add_info=str_ireplace("//", "\n", $match[9]);
 
         $description = isset($lines[1]) ? $lines[1] : null;
+
+        $descr=explode("?",$description);
+        $full_description=($descr[1])?$descr[1]:$descr[0];
+        if(strlen($add_info)>1)$full_description=$add_info."\n".$full_description;
+        $description_lines=explode("\n",$full_description);
+        $full_description=implode("\n",array_filter($description_lines));
+
+
         //$transaction = $this->reader->createTransaction();
         // foreach ($match as $key => $value) {
         //  $transaction[match][$key]=$value;
         // }
         //$transaction[lines]=$lines;
         $transaction[amount]=$amount;
+        $transaction[dr]=$dr;
+        $transaction[cr]=$cr;
 
         $transaction[valueDate]=$valueDate->format('d.m.Y');
         $transaction[bookDate]=($bookDate)?$bookDate->format('d.m.Y'):$openingBalanceDate;
         $transaction[contraAccountNumber]=$this->contraAccountNumber($lines);
         $transaction[contraAccountName]=$this->contraAccountName($lines);
-        $transaction[add_info]=$this->description($add_info);
-        $transaction[description]=$this->description($description);
+        //$transaction[add_info]=$this->description($add_info);
+        $transaction[type]=$this->description($match[8]);
+        $transaction[description]=$this->description($full_description);
+
+        //$transaction[full_description]=$this->description($full_description);
         return $transaction;
     }
     public function getNearestDateTimeFromDayAndMonth(\DateTime $target, $day, $month)
