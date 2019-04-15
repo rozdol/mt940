@@ -132,10 +132,10 @@ class Mt940
         $statement[openingBalanceDate]=$this->balance($this->openingBalance($text))[date];
         $statement[closingBalance]=$this->balance($this->closingBalance($text))[amount];
         $statement[closingBalanceDate]=$this->balance($this->closingBalance($text))[date];
-        $statement[closingBalanceAvaliable]=$this->balance($this->closingBalanceAvaliable($text))[amount];
-        $statement[closingBalanceAvaliableDate]=$this->balance($this->closingBalanceAvaliable($text))[date];
-        $statement[forwardBalanceAvaliable]=$this->balance($this->forwardBalanceAvaliable($text))[amount];
-        $statement[forwardBalanceAvaliableDate]=$this->balance($this->forwardBalanceAvaliable($text))[date];
+        $statement[closingBalanceAvailable]=$this->balance($this->closingBalanceAvailable($text))[amount];
+        $statement[closingBalanceAvailableDate]=$this->balance($this->closingBalanceAvailable($text))[date];
+        $statement[forwardBalanceAvailable]=$this->balance($this->forwardBalanceAvailable($text))[amount];
+        $statement[forwardBalanceAvailableDate]=$this->balance($this->forwardBalanceAvailable($text))[date];
         $statement[debitEntriesAmount]=$this->balance($this->debitEntries($text))[amount];
         $statement[creditEntriesAmount]=$this->balance($this->creditEntries($text))[amount];
         $statement[messageDate]=$this->messageDate($text)[date];
@@ -226,14 +226,14 @@ class Mt940
         }
     }
 
-    public function closingBalanceAvaliable($text)
+    public function closingBalanceAvailable($text)
     {
         if ($line = $this->getLine('64', $text)) {
             return $line;
         }
     }
 
-    public function forwardBalanceAvaliable($text)
+    public function forwardBalanceAvailable($text)
     {
         if ($line = $this->getLine('65', $text)) {
             return $line;
