@@ -148,7 +148,7 @@ class Mt940
         $bookDates=[];
         $valueDates=[];
         foreach ($this->splitTransactions($text) as $chunk) {
-            $transactions[$tr_no]=$this->transaction($chunk,$statement[openingBalanceDate]);
+            $transactions[$tr_no]=$this->transaction($chunk,$statement[openingBalanceDate],$statement[closingBalanceDate]);
 
             $bookDates[]=$transactions[$tr_no][bookDate];
             $valueDates[]=$transactions[$tr_no][valueDate];
@@ -279,7 +279,7 @@ class Mt940
         }
     }
 
-    public function transaction(array $lines, $openingBalanceDate='')
+    public function transaction(array $lines, $openingBalanceDate='',$closingBalanceDate='')
     {
         $lines[0]=str_ireplace("\r\n","//",$lines[0]);
         //$lines[0]=str_ireplace("\r","//",$lines[0]);
@@ -340,7 +340,7 @@ class Mt940
         $transaction[cr]=$cr;
 
         $transaction[valueDate]=$valueDate->format('d.m.Y');
-        $transaction[bookDate]=($bookDate)?$bookDate->format('d.m.Y'):$openingBalanceDate;
+        $transaction[bookDate]=($bookDate)?$bookDate->format('d.m.Y'):$closingBalanceDate;
         $transaction[contraAccountNumber]=$this->contraAccountNumber($lines);
         $transaction[contraAccountName]=$this->contraAccountName($lines);
         //$transaction[add_info]=$this->description($add_info);
