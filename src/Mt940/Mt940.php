@@ -402,15 +402,30 @@ class Mt940
         }
 
         $add_info=str_ireplace("//", "\n", $match[9]);
-
         $description = isset($lines[1]) ? $lines[1] : null;
 
-        $descr=explode("?",$description);
+        $description=str_ireplace("\n", "", $description);
+        $description=str_ireplace("\r", "", $description);
+        //$description=str_ireplace("?", "\n", $description);
+
+
+        $description=explode("?",$description);
+        $first_line=array_shift($description);
+        foreach ($description as $description_line) {
+            $clean_description[]=substr($description_line,2,strlen($description_line)-2);
+        }
+        //$clean_description=array_map('trim',$clean_description);
+        $description=$first_line." ".implode("\n",$clean_description);
+        $description=str_ireplace(", ", ",", $description);
+        $description=str_ireplace(",", ", ", $description);
+        //$clean_description=
         $full_description=($descr[1])?$descr[1]:$descr[0];
+        $full_description=$description;
         if(strlen($add_info)>1)$full_description=$add_info."\n".$full_description;
         $description_lines=explode("\n",$full_description);
         if($type_descr!='')array_unshift($description_lines, $type_descr);
         $full_description=implode("\n",array_filter($description_lines));
+        //echo $this->html->pre_display($full_description,"full_description");
 
 
         //$transaction = $this->reader->createTransaction();
