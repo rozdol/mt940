@@ -411,8 +411,18 @@ class Mt940
 
         $description=explode("?",$description);
         $first_line=array_shift($description);
+        $has_index=1;
         foreach ($description as $description_line) {
-            $clean_description[]=substr($description_line,2,strlen($description_line)-2);
+            $index=substr($description_line,0,2)*1;
+            //echo $this->html->pre_display($index,"index $has_index");
+            if(!is_numeric($index))$has_index=0;
+        }
+        foreach ($description as $description_line) {
+            if($has_index>0){
+                $clean_description[]=substr($description_line,2,strlen($description_line)-2);
+            }else{
+                $clean_description[]=$description_line;
+            }
         }
         //$clean_description=array_map('trim',$clean_description);
         $description=$first_line." ".implode("\n",$clean_description);
