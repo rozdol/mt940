@@ -411,14 +411,15 @@ class Mt940
 
         $description=explode("?",$description);
         $first_line=array_shift($description);
-        $has_index=1;
+        $has_index=0;
         foreach ($description as $description_line) {
-            $index=substr($description_line,0,2)*1;
+            $index=substr($description_line,0,2);
+            if(is_numeric($index))$has_index++;
             //echo $this->html->pre_display($index,"index $has_index");
-            if(!is_numeric($index))$has_index=0;
+
         }
         foreach ($description as $description_line) {
-            if($has_index>0){
+            if($has_index>1){
                 $clean_description[]=substr($description_line,2,strlen($description_line)-2);
             }else{
                 $clean_description[]=$description_line;
@@ -435,7 +436,7 @@ class Mt940
         $description_lines=explode("\n",$full_description);
         if($type_descr!='')array_unshift($description_lines, $type_descr);
         $full_description=implode("\n",array_filter($description_lines));
-        //echo $this->html->pre_display($full_description,"full_description");
+        //echo $this->html->pre_display($full_description,"full_description ($has_index)");
 
 
         //$transaction = $this->reader->createTransaction();
