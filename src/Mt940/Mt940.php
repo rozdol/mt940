@@ -403,7 +403,8 @@ class Mt940
 
         $add_info=str_ireplace("//", "\n", $match[9]);
         $description = isset($lines[1]) ? $lines[1] : null;
-
+        $orig_description=$description;
+        //echo $this->html->pre_display($orig_description,"orig_description");
         $description=str_ireplace("\n", "", $description);
         $description=str_ireplace("\r", "", $description);
         //$description=str_ireplace("?", "\n", $description);
@@ -416,20 +417,69 @@ class Mt940
             $index=substr($description_line,0,2);
             if(is_numeric($index))$has_index++;
             //echo $this->html->pre_display($index,"index $has_index");
-
         }
-        foreach ($description as $description_line) {
-            if($has_index>1){
-                $clean_description[]=substr($description_line,2,strlen($description_line)-2);
-            }else{
-                $clean_description[]=$description_line;
+        if($has_index>1){
+            foreach ($description as $description_line) {
+                $noindex_description[]=substr($description_line,2,strlen($description_line)-2);
             }
+            $prev_len=0;
+           // echo $this->html->pre_display($noindex_description,"noindex_description1");
+            foreach ($noindex_description as $description_line) {
+                $len=strlen($description_line);
+                //echo "[$description_line]($len)<br>";
+                $long_line=$long_line.$description_line;
+                if($len>26){
+
+                }else{
+                    if($prev_len>26){
+                        $clean_description[]=$long_line;
+                    }else{
+                        $clean_description[]=$description_line;
+                    }
+                    $long_line='';
+                }
+                $prev_len=$len;
+            }
+        }else{
+            $first_line='';
+            $description=explode("\n",$orig_description);
+            $prev_len=0;
+            $i=0;
+            $max_len=60;
+            $max_len_prev=60;
+            foreach ($description as $description_line) {
+                $description_line=str_ireplace("\n", "", $description_line);
+                $description_line=str_ireplace("\r", "", $description_line);
+                $len=strlen($description_line);
+                //echo $this->html->pre_display($description_line,"($prev_len - $len)");
+                $long_line=$long_line.$description_line;
+                if($len>$max_len){
+                    //echo "LL:$long_line<br>";
+                }else{
+                    //echo "SL:$long_line<br>";
+                    if($prev_len>$max_len_prev){
+                        $clean_description[]=$long_line;
+                    }else{
+                        $clean_description[]=$description_line;
+                    }
+                    $long_line='';
+                }
+                //echo $this->html->pre_display($clean_description,"L: $description_line ($len - $prev_len)");
+                $prev_len=$len;
+                $max_len_prev=$max_len;
+                $max_len=64;
+
+            }
+            //$clean_description=$orig_description;
         }
+
+        unset($description);
         //$clean_description=array_map('trim',$clean_description);
-        $description=$first_line." ".implode("\n",$clean_description);
+        if($first_line!='')$description=$first_line." ";
+        $description=$description.implode("\n",$clean_description);
         $description=str_ireplace(", ", ",", $description);
         $description=str_ireplace(",", ", ", $description);
-        //$clean_description=
+
         $full_description=($descr[1])?$descr[1]:$descr[0];
         $full_description=$description;
         if(strlen($add_info)>1)$full_description=$add_info."\n".$full_description;
