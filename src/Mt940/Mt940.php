@@ -357,27 +357,32 @@ class Mt940
         $type_descr=$codes[$type];
         //echo $this->html->pre_display($match,"match $type - $type_descr");
         // Parse the amount
+        $technical_info='';
         $amount = (float) str_replace(',', '.', $match[7]);
         if ($match[5] === 'D') {
             $dr=$amount;
             $cr=0;
             $amount *= -1;
+            if($amount==0)$technical_info="DR_ZERO";
         }
         if ($match[5] === 'ED' || $match[5] === 'RD') {
             $dr=-1*$amount;
             $cr=0;
             //$amount *= -1;
+            if($amount==0)$technical_info="DR_ZERO";
         }
 
         if ($match[5] === 'C') {
             $dr=0;
             $cr=$amount;
             //$amount *= -1;
+            if($amount==0)$technical_info="CR_ZERO";
         }
         if ($match[5] === 'EC' || $match[5] === 'RC') {
             $dr=0;
             $cr=-1*$amount;
             $amount *= -1;
+            if($amount==0)$technical_info="CR_ZERO";
         }
 
         // if($amount>0){
@@ -505,7 +510,7 @@ class Mt940
         //$transaction[add_info]=$this->description($add_info);
         $transaction[type]=$this->description($match[8]);
         $transaction[description]=$this->description($full_description);
-
+        $transaction[technicalInfo]=$technical_info;
         //$transaction[full_description]=$this->description($full_description);
         return $transaction;
     }
