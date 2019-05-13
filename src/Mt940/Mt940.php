@@ -428,7 +428,8 @@ class Mt940
                 $noindex_description[]=substr($description_line,2,strlen($description_line)-2);
             }
             $prev_len=0;
-           // echo $this->html->pre_display($noindex_description,"noindex_description1");
+            //echo $this->html->pre_display($noindex_description,"noindex_description1");
+            $i=0;
             foreach ($noindex_description as $description_line) {
                 $len=strlen($description_line);
                 //echo "[$description_line]($len)<br>";
@@ -443,8 +444,12 @@ class Mt940
                     }
                     $long_line='';
                 }
+                //echo "i:$i, len=$len, prev_len=$prev_len, D:$description_line, L:$long_line<br>";
+                $i++;
                 $prev_len=$len;
             }
+            if($long_line!='')$clean_description[]=$long_line;
+            //echo $this->html->pre_display($clean_description,"clean_description");
         }else{
             $first_line='';
             $description=explode("\n",$orig_description);
