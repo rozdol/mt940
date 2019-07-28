@@ -469,7 +469,13 @@ class Mt940
                 }else{
                     //echo "SL:$long_line<br>";
                     if($prev_len>$max_len_prev){
-                        $clean_description[]=$long_line;
+                        $count=count($clean_description);
+                        if($count>0){
+                            $clean_description[($count-1)]=$long_line;
+                        }else{
+                            $clean_description[]=$long_line;
+                        }
+
                     }else{
                         $clean_description[]=$description_line;
                     }
