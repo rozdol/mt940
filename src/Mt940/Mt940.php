@@ -452,41 +452,47 @@ class Mt940
             //echo $this->html->pre_display($clean_description,"clean_description");
         }else{
             $first_line='';
-            $description=explode("\n",$orig_description);
-            $prev_len=0;
-            $i=0;
-            $max_len=60;
-            $max_len_prev=60;
-            foreach ($description as $description_line) {
-                $description_line=str_ireplace("\n", "", $description_line);
-                $description_line=str_ireplace("\r", "", $description_line);
-                $len=strlen($description_line);
-                //echo $this->html->pre_display($description_line,"($prev_len - $len)");
-                $long_line=$long_line.$description_line;
-                if($len>$max_len){
-                    //echo "LL:$long_line<br>";
-                    $clean_description[]=$description_line;
-                }else{
-                    //echo "SL:$long_line<br>";
-                    if($prev_len>$max_len_prev){
-                        $count=count($clean_description);
-                        if($count>0){
-                            $clean_description[($count-1)]=$long_line;
-                        }else{
-                            $clean_description[]=$long_line;
-                        }
+            $description=str_replace("\n","",str_replace("\r","",$orig_description));
 
-                    }else{
-                        $clean_description[]=$description_line;
-                    }
-                    $long_line='';
-                }
-                //echo $this->html->pre_display($clean_description,"L: $description_line ($len - $prev_len)");
-                $prev_len=$len;
-                $max_len_prev=$max_len;
-                $max_len=64;
+            $clean_description[]=str_ireplace("?","\n",$description);
+            // echo $this->html->pre_display($clean_description,"clean_description");
+            // echo $this->html->pre_display($orig_description,"orig_description");
 
-            }
+            // $description=explode("\n",$orig_description);
+            // $prev_len=0;
+            // $i=0;
+            // $max_len=60;
+            // $max_len_prev=60;
+            // foreach ($description as $description_line) {
+            //     $description_line=str_ireplace("\n", "", $description_line);
+            //     $description_line=str_ireplace("\r", "", $description_line);
+            //     $len=strlen($description_line);
+            //     //echo $this->html->pre_display($description_line,"($prev_len - $len)");
+            //     $long_line=$long_line.$description_line;
+            //     if($len>$max_len){
+            //         //echo "LL:$long_line<br>";
+            //         $clean_description[]=$description_line;
+            //     }else{
+            //         //echo "SL:$long_line<br>";
+            //         if($prev_len>$max_len_prev){
+            //             $count=count($clean_description);
+            //             if($count>0){
+            //                 $clean_description[($count-1)]=$long_line;
+            //             }else{
+            //                 $clean_description[]=$long_line;
+            //             }
+
+            //         }else{
+            //             $clean_description[]=$description_line;
+            //         }
+            //         $long_line='';
+            //     }
+            //     //echo $this->html->pre_display($clean_description,"L: $description_line ($len - $prev_len)");
+            //     $prev_len=$len;
+            //     $max_len_prev=$max_len;
+            //     $max_len=64;
+
+            // }
             //$clean_description=$orig_description;
         }
 
