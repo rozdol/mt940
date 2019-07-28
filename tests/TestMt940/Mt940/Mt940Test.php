@@ -1,17 +1,17 @@
 <?php
-namespace Test\Rozdol\Payroll;
+namespace Test\Rozdol\Mt940;
 
-use Rozdol\Payroll\Payroll;
+use Rozdol\Mt940\Mt940;
 
 use PHPUnit\Framework\TestCase;
 
-class PayrollTest extends TestCase
+class Mt940Test extends TestCase
 {
     
     protected function setUp()
     {
-        //$this->utils = Payroll::getInstance();
-        $this->utils = new Payroll();
+        //$this->utils = Mt940::getInstance();
+        $this->utils = new Mt940();
     }
 
     /**
